@@ -1,0 +1,77 @@
+---
+# Source: airbyte/charts/pod-sweeper/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airbyte-pod-sweeper-pod-sweeper
+  namespace: default
+  labels:
+    helm.sh/chart: pod-sweeper-0.45.31
+    app.kubernetes.io/name: pod-sweeper
+    app.kubernetes.io/instance: airbyte
+    app.kubernetes.io/version: "0.39.37-alpha"
+    app.kubernetes.io/managed-by: Helm
+    namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pod-sweeper
+      app.kubernetes.io/instance: airbyte
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pod-sweeper
+        app.kubernetes.io/instance: airbyte
+      annotations:
+        checksum/sweep-pod-script: f5a157ee96e1fabef86378277d76e3700d4f8d2b11410e08e8b61452032c7a6f
+    spec:
+      serviceAccountName: airbyte-admin
+      containers:
+      - name: airbyte-pod-sweeper
+        image: 558355093142.dkr.ecr.us-east-1.amazonaws.com/airbyte-pod-sweeper
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: KUBE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        volumeMounts:
+        - mountPath: /script/sweep-pod.sh
+          subPath: sweep-pod.sh
+          name: sweep-pod-script
+        - mountPath: /.kube
+          name: kube-config
+        command: ["/bin/bash", "-c", /script/sweep-pod.sh]
+        resources:
+          limits: {}
+          requests: {}
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -ec
+            - grep -aq sweep-pod.sh /proc/1/cmdline
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -ec
+            - grep -aq sweep-pod.sh /proc/1/cmdline
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+      volumes:
+      - name: kube-config
+        emptyDir: {}
+      - name: sweep-pod-script
+        configMap:
+          name: airbyte-pod-sweeper-sweep-pod-script
+          defaultMode: 0755

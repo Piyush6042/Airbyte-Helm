@@ -1,0 +1,21 @@
+---
+# Source: airbyte/templates/tests/test-webapp.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "airbyte-test-connection"
+  labels:
+    helm.sh/chart: airbyte-0.45.31
+    app.kubernetes.io/name: airbyte
+    app.kubernetes.io/instance: airbyte
+    app.kubernetes.io/version: "0.44.12"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+  - name: wget
+    image: busybox
+    command: ['wget']
+    args: ['airbyte-airbyte-webapp-svc:80']
+  restartPolicy: Never

@@ -1,0 +1,95 @@
+---
+# Source: airbyte/charts/cron/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airbyte-cron
+  labels:
+    helm.sh/chart: cron-0.45.31
+    app.kubernetes.io/name: cron
+    app.kubernetes.io/instance: airbyte
+    app.kubernetes.io/version: "0.44.12"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cron
+      app.kubernetes.io/instance: airbyte
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cron
+        app.kubernetes.io/instance: airbyte
+    spec:
+      serviceAccountName: airbyte-admin
+      automountServiceAccountToken: true
+      containers:
+        - name: airbyte-cron
+          image: 558355093142.dkr.ecr.us-east-1.amazonaws.com/airbyte-cron
+          imagePullPolicy: "IfNotPresent"
+          env:
+          - name: AIRBYTE_VERSION
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: AIRBYTE_VERSION
+          - name: CONFIGS_DATABASE_MINIMUM_FLYWAY_MIGRATION_VERSION
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: CONFIGS_DATABASE_MINIMUM_FLYWAY_MIGRATION_VERSION
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: airbyte-airbyte-secrets
+                key: DATABASE_PASSWORD
+          - name: DATABASE_URL
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: DATABASE_URL
+          - name: DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: airbyte-airbyte-secrets
+                key: DATABASE_USER
+          - name: MICRONAUT_ENVIRONMENTS      
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: CRON_MICRONAUT_ENVIRONMENTS
+          - name: TEMPORAL_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: TEMPORAL_HOST
+          - name: TRACKING_STRATEGY
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: TRACKING_STRATEGY
+          - name: WORKFLOW_FAILURE_RESTART_DELAY_SECONDS
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: WORKFLOW_FAILURE_RESTART_DELAY_SECONDS
+          - name: WORKSPACE_DOCKER_MOUNT
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: WORKSPACE_DOCKER_MOUNT
+          - name: WORKSPACE_ROOT
+            valueFrom:
+              configMapKeyRef:
+                name: airbyte-airbyte-env
+                key: WORKSPACE_ROOT
+
+          # Values from secret
+
+          # Values from env
+
+          # Values from extraEnv for more compability(if you want to use external secret source or other stuff)
+          resources:
+            limits: {}
+            requests: {}

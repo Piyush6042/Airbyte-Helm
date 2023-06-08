@@ -1,0 +1,227 @@
+---
+# Source: airbyte/charts/server/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airbyte-server
+  labels:
+    helm.sh/chart: server-0.45.31
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: airbyte
+    app.kubernetes.io/version: "0.44.12"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: server
+      app.kubernetes.io/instance: airbyte
+  strategy:
+    type: Recreate # Needed due to volume claims
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: server
+        app.kubernetes.io/instance: airbyte
+    spec:
+      serviceAccountName: airbyte-admin
+      containers:
+      - name: airbyte-server-container
+        image: 558355093142.dkr.ecr.us-east-1.amazonaws.com/airbyte-server
+        imagePullPolicy: "IfNotPresent"
+        env:
+        - name: AIRBYTE_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: AIRBYTE_VERSION
+        - name: AUTO_DETECT_SCHEMA
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: AUTO_DETECT_SCHEMA
+        - name: CONFIG_ROOT
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: CONFIG_ROOT
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: airbyte-airbyte-secrets
+              key: DATABASE_PASSWORD
+        - name: DATABASE_URL
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: DATABASE_URL
+        - name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              name: airbyte-airbyte-secrets
+              key: DATABASE_USER
+        - name: TRACKING_STRATEGY
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: TRACKING_STRATEGY
+        - name: WORKER_ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: WORKER_ENVIRONMENT
+        - name: WORKSPACE_ROOT
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: WORKSPACE_ROOT
+        - name: WEBAPP_URL
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: WEBAPP_URL
+        - name: TEMPORAL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: TEMPORAL_HOST
+        - name: LOG_LEVEL
+          value: "INFO"
+        - name: JOB_MAIN_CONTAINER_CPU_REQUEST
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: JOB_MAIN_CONTAINER_CPU_REQUEST
+        - name: JOB_MAIN_CONTAINER_CPU_LIMIT
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: JOB_MAIN_CONTAINER_CPU_LIMIT
+        - name: JOB_MAIN_CONTAINER_MEMORY_REQUEST
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: JOB_MAIN_CONTAINER_MEMORY_REQUEST
+        - name: JOB_MAIN_CONTAINER_MEMORY_LIMIT
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: JOB_MAIN_CONTAINER_MEMORY_LIMIT
+        - name: S3_LOG_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: S3_LOG_BUCKET
+        - name: S3_LOG_BUCKET_REGION
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: S3_LOG_BUCKET_REGION
+        - name: AWS_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: airbyte-airbyte-secrets
+              key: STATE_STORAGE_MINIO_ACCESS_KEY
+        - name: AWS_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: airbyte-airbyte-secrets
+              key: STATE_STORAGE_MINIO_SECRET_ACCESS_KEY
+        - name: S3_MINIO_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: S3_MINIO_ENDPOINT
+        - name: STATE_STORAGE_MINIO_BUCKET_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: STATE_STORAGE_MINIO_BUCKET_NAME
+        - name: STATE_STORAGE_MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: airbyte-airbyte-secrets
+              key: STATE_STORAGE_MINIO_ACCESS_KEY
+        - name: STATE_STORAGE_MINIO_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: airbyte-airbyte-secrets
+              key: STATE_STORAGE_MINIO_SECRET_ACCESS_KEY
+        - name: STATE_STORAGE_MINIO_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: STATE_STORAGE_MINIO_ENDPOINT
+        - name: S3_PATH_STYLE_ACCESS
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: S3_PATH_STYLE_ACCESS
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: GOOGLE_APPLICATION_CREDENTIALS
+        - name: GCS_LOG_BUCKET
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: GCS_LOG_BUCKET
+        - name: CONFIGS_DATABASE_MINIMUM_FLYWAY_MIGRATION_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: CONFIGS_DATABASE_MINIMUM_FLYWAY_MIGRATION_VERSION
+        - name: JOBS_DATABASE_MINIMUM_FLYWAY_MIGRATION_VERSION
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: JOBS_DATABASE_MINIMUM_FLYWAY_MIGRATION_VERSION
+        - name: WORKER_LOGS_STORAGE_TYPE
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: WORKER_LOGS_STORAGE_TYPE
+        - name: WORKER_STATE_STORAGE_TYPE
+          valueFrom:
+            configMapKeyRef:
+              name: airbyte-airbyte-env
+              key: WORKER_STATE_STORAGE_TYPE
+        # Values from secret
+
+        # Values from env
+
+        # Values from extraEnv for more compability(if you want to use external secret source or other stuff)
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        ports:
+        - name: http
+          containerPort: 8001
+          protocol: TCP
+        resources:
+          limits: {}
+          requests: {}
+        volumeMounts:
+        - name: gcs-log-creds-volume
+          mountPath: /secrets/gcs-log-creds
+          readOnly: true
+      volumes:
+      - name: gcs-log-creds-volume
+        secret:
+          secretName: airbyte-gcs-log-creds

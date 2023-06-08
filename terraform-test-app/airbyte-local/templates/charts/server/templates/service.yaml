@@ -1,0 +1,22 @@
+---
+# Source: airbyte/charts/server/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: airbyte-airbyte-server-svc
+  labels:
+    helm.sh/chart: server-0.45.31
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: airbyte
+    app.kubernetes.io/version: "0.44.12"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8001
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app.kubernetes.io/name: server
+    app.kubernetes.io/instance: airbyte

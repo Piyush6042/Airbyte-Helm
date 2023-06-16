@@ -1,0 +1,11 @@
+webapp
+worker
+airbyte
+connector-builder-server
+metrics
+pod-sweeper
+server
+airbyte-bootloader
+airbyte-cron
+cron
+temporal
